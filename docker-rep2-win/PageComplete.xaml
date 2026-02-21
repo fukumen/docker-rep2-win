@@ -1,0 +1,43 @@
+<Page x:Class="docker_rep2_win.PageComplete"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:docker_rep2_win"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="PageComplete"
+      Loaded="Page_Loaded">
+
+    <Grid Background="White" Margin="20" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="🎉" FontSize="50" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+            
+            <TextBlock x:Name="TxtTitle" Text="セットアップが完了しました！" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+            <TextBlock x:Name="TxtSubtitle" HorizontalAlignment="Center" Foreground="Gray">
+                <Run Text="{x:Static local:AppInfo.AppShortName}"/>
+                <Run Text=" の構築がすべて正常に終了しました。"/>
+            </TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                <TextBlock Text="ブラウザから " Foreground="Gray" VerticalAlignment="Center"/>
+                <TextBox x:Name="TxtUrl" Text="http://localhost" IsReadOnly="True" BorderThickness="0" Background="Transparent" Foreground="#0066CC" Cursor="IBeam" VerticalAlignment="Center" Padding="2,0" FontWeight="SemiBold"/>
+                <TextBlock Text=" でアクセスできます。" Foreground="Gray" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Border BorderBrush="AliceBlue" BorderThickness="1" Background="#F9FDFF" Padding="20" CornerRadius="8">
+                <StackPanel>
+                    <CheckBox x:Name="ChkCreateShortcut" Content="デスクトップにショートカットを作成する" IsChecked="False" Margin="0,5"/>
+                    <CheckBox x:Name="ChkLaunchNow" IsChecked="True" Margin="0,5">
+                        <TextBlock>
+                            <Run Text="今すぐ "/>
+                            <Run Text="{x:Static local:AppInfo.AppShortName}"/>
+                            <Run Text=" を起動する"/>
+                        </TextBlock>
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+
+            <Button x:Name="BtnFinish" Style="{StaticResource PageButtonStyle}" Content="完了" Width="180" Height="40" Margin="0,20,0,0" Click="BtnFinish_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

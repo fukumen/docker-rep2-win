@@ -1,0 +1,21 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Explicitly set line endings to CRLF for source files
+*.cs text eol=crlf
+*.xaml text eol=crlf
+*.csproj text eol=crlf
+*.sln text eol=crlf
+*.config text eol=crlf
+*.manifest text eol=crlf
+*.xml text eol=crlf
+*.json text eol=crlf
+*.ps1 text eol=crlf
+Makefile text eol=crlf
+
+# Binary files
+*.ico binary
+*.png binary
+*.jpg binary
+*.dll binary
+*.exe binary

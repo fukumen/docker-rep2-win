@@ -1,0 +1,62 @@
+<Window x:Class="docker_rep2_win.UpdateChoiceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:docker_rep2_win"
+        Title="既存インストールの確認" Width="520" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        WindowStyle="SingleBorderWindow" Background="#FBFBFB"
+        Loaded="Window_Loaded">
+    <Grid Margin="30" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" FontSize="15" Margin="0,0,0,25" LineHeight="22">
+            既に <Run FontWeight="Bold" Text="{x:Static local:AppInfo.AppFullName}"/> がインストールされています。<LineBreak/>
+            実行する操作を選択してください。
+        </TextBlock>
+
+        <StackPanel Grid.Row="1">
+            <Button x:Name="BtnUpdate" Height="90" Margin="0,0,0,12" Click="Update_Click" IsDefault="True"
+                    Style="{StaticResource PageButtonStyle}" Background="#F1F8FE" BorderBrush="#D1E8FD" Tag="#E3F2FD" Padding="0">
+                <Button.Content>
+                    <Grid Margin="15,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="🔄" FontSize="32" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="アップデート (推奨)" FontWeight="Bold" FontSize="16" Margin="0,0,0,4" Foreground="#1976D2"/>
+                            <TextBlock Text="既存の設定やデータを保持したまま、プログラムを更新します。" FontSize="12" Foreground="#666666" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Button.Content>
+            </Button>
+            
+            <Button x:Name="BtnReinstall" Height="90" Margin="0,0,0,20" Click="Reinstall_Click"
+                    Style="{StaticResource PageButtonStyle}" Background="#FEF2F0" BorderBrush="#FDDED1" Tag="#FBE9E7" Padding="0">
+                <Button.Content>
+                    <Grid Margin="15,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="🧹" FontSize="32" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="クリーンインストール" FontWeight="Bold" FontSize="16" Margin="0,0,0,4" Foreground="#E64A19"/>
+                            <TextBlock Text="既存の環境を一度削除し、新しくインストールし直します。" FontSize="12" Foreground="#666666" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+
+        <Button x:Name="BtnCancel" Grid.Row="2" Content="中止" HorizontalAlignment="Right" Width="100" Height="35" Click="Cancel_Click" IsCancel="True"
+                Style="{StaticResource PageButtonStyle}" Background="#F9F9F9" BorderBrush="#CCCCCC" Tag="#E9E9E9"/>
+    </Grid>
+</Window>

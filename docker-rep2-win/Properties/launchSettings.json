@@ -1,0 +1,57 @@
+{
+  "profiles": {
+    "docker-rep2-win": {
+      "commandName": "Project"
+    },
+    "uninstall": {
+      "commandName": "Project",
+      "commandLineArgs": "--uninstall",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "config": {
+      "commandName": "Project",
+      "commandLineArgs": "--config",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "install": {
+      "commandName": "Project",
+      "commandLineArgs": "--install",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "stop": {
+      "commandName": "Project",
+      "commandLineArgs": "--stop",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "start": {
+      "commandName": "Project",
+      "commandLineArgs": "--start",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "silent-start": {
+      "commandName": "Project",
+      "commandLineArgs": "--silent-start",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "bg-start": {
+      "commandName": "Project",
+      "commandLineArgs": "--bg-start",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "version": {
+      "commandName": "Project",
+      "commandLineArgs": "--version",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "menu": {
+      "commandName": "Project",
+      "commandLineArgs": "--menu",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    },
+    "auto": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\docker-rep2-win\\docker-rep2-win.exe",
+      "workingDirectory": "C:\\Program Files\\docker-rep2-win\\"
+    }
+  }
+}

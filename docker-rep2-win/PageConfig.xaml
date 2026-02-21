@@ -1,0 +1,92 @@
+<Page x:Class="docker_rep2_win.PageConfig"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:docker_rep2_win"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="PageConfig"
+      Loaded="Page_Loaded">
+
+    <Grid Background="White" Margin="20,15,20,15" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="インストール設定" FontSize="20" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock Text="※ここでの設定（保存先やポート番号など）を変更するには、再インストールが必要になります。" Foreground="DimGray" FontSize="11"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+            <TextBlock Text="インストール先フォルダ:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="TxtInstallPath" Grid.Column="0" Height="25" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Button Style="{StaticResource PageButtonStyle}" Content="参照..." Grid.Column="1" Margin="5,0,0,0" Padding="5,0" Click="BtnBrowseInstall_Click"/>
+            </Grid>
+            <TextBlock Text="※ここにWSL用のファイルやdocker-compose.ymlが配置されます。" Foreground="Gray" FontSize="11"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+            <TextBlock Text="データ保存先 (rep2-data):" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="TxtDataPath" Grid.Column="0" Height="25" VerticalContentAlignment="Center" IsReadOnly="True"/>
+                <Button Style="{StaticResource PageButtonStyle}" Content="参照..." Grid.Column="1" Margin="5,0,0,0" Padding="5,0" Click="BtnBrowseData_Click"/>
+            </Grid>
+            <TextBlock Foreground="Gray" FontSize="11">
+                <Run Text="※ここに"/>
+                <Run Text="{x:Static local:AppInfo.CoreAppName}"/>
+                <Run Text="のconfやdataが保存されます（バインドマウント領域）。"/>
+            </TextBlock>
+        </StackPanel>
+
+        <StackPanel x:Name="AdvancedSettingsArea" Grid.Row="3">
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="HTTP ポート番号:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="TxtPort" Width="80" Height="25" HorizontalAlignment="Left" VerticalContentAlignment="Center" Text="80"/>
+                    <CheckBox x:Name="ChkOpenFirewall" Content="Hyper-Vファイアウォールを開放する" VerticalAlignment="Center" Margin="15,0,0,0" IsChecked="True" ToolTip="有効にすると、Hyper-Vファイアウォールの受信規則にルールを追加します。LANからのアクセスが可能になります。"/>
+                </StackPanel>
+                <TextBlock Foreground="Gray" FontSize="11">
+                    <Run Text="※ここで設定したポートへWEBブラウザで接続すると"/>
+                    <Run Text="{x:Static local:AppInfo.CoreAppName}"/>
+                    <Run Text="に繋がります。"/>
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="WSL 環境設定:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox x:Name="ChkKeepWslRunning" Content="WSLをバックグラウンドで実行し続ける (WSL 2.5.4以上)" VerticalAlignment="Center" IsChecked="True" Margin="0,0,0,5" ToolTip="有効にすると、WSLが自動停止しません (.wslconfigのgeneralセクションにinstanceIdleTimeout=-1を設定します)"/>
+                    <CheckBox x:Name="ChkHostAddressLoopback" Content="ホストIPアドレスでのアクセスを許可する" VerticalAlignment="Center" IsChecked="True" Margin="20,0,0,0" ToolTip="有効にすると、Windows側のIPアドレスを使用してWSL上のサービスに接続できるようになります。無効でも127.0.0.1やLANからは接続可能です (.wslconfigのexperimentalセクションにhostAddressLoopback=trueを設定します)"/>
+                </StackPanel>
+                <TextBlock Foreground="Gray" FontSize="11">
+                    <Run Text="※これらの設定は .wslconfig に書き込まれます。それぞれ有効にすると.wslconfigの設定値を変更しますが、無効のときは設定値を変更しません。"/>
+                </TextBlock>
+            </StackPanel>
+        </StackPanel>
+
+        <TextBlock x:Name="TxtAlpineStatus" Grid.Row="3" Margin="0,20,0,0" FontSize="14" FontWeight="SemiBold" Foreground="DarkSlateBlue" Visibility="Collapsed" TextWrapping="Wrap"/>
+
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource PageButtonStyle}" Content="戻る" Width="120" Height="35" Margin="0,0,10,0" Click="BtnBack_Click"/>
+            <Button x:Name="BtnNext" Style="{StaticResource PageButtonStyle}" Content="次へ" Width="120" Height="35" Margin="0,0,10,0" Click="BtnNext_Click"/>
+            <Button Style="{StaticResource PageButtonStyle}" Content="キャンセル" Width="120" Height="35" Click="BtnCancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

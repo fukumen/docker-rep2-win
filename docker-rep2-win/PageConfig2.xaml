@@ -1,0 +1,106 @@
+<Page x:Class="docker_rep2_win.PageConfig2"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:docker_rep2_win"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="PageConfig2"
+      Loaded="Page_Loaded">
+
+    <Grid Background="White" Margin="20,15,20,15" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock x:Name="TxtTitle" Text="各種設定" FontSize="20" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock x:Name="TxtConfigNotice" Text="※ここでの設定は、インストール後も設定画面からいつでも変更できます。" Foreground="DimGray" FontSize="11"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+            <TextBlock Text="Alpine Linux バージョン:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="CmbVersions" Height="25" Width="250" HorizontalAlignment="Left" IsEnabled="False">
+                <ComboBoxItem Content="取得中..."/>
+            </ComboBox>
+            <TextBlock Foreground="Gray" FontSize="11">
+                <Run Text="※ここで選択したAlpine LinuxをベースにWSLディストリビューション("/>
+                <Run Text="{x:Static local:AppInfo.DistroName}"/>
+                <Run Text=")を構築します。"/>
+            </TextBlock>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel>
+                    <TextBlock Text="PHP memory_limit (例: 128M, 256M, 512M):" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtPhpMemoryLimit" Width="120" Height="25" HorizontalAlignment="Left" VerticalContentAlignment="Center" Text="128M"/>
+                </StackPanel>
+                <StackPanel Margin="30,0,0,0">
+                    <TextBlock Text="WSLモニターポート (デフォルト: 28080):" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtMonitorPort" Width="100" Height="25" HorizontalAlignment="Left" VerticalContentAlignment="Center" Text="28080"/>
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Text="※PHPの最大メモリと、WSL監視用のポート番号を指定します。" Foreground="Gray" FontSize="11" Margin="0,2,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+                <CheckBox x:Name="ChkRunInBackground" Content="タスクトレイに表示する" VerticalAlignment="Center">
+                    <CheckBox.ToolTip>
+                        <TextBlock>
+                            <Run Text="有効にすると、"/>
+                            <Run Text="{x:Static local:AppInfo.AppShortName}"/>
+                            <Run Text="は常駐します。"/>
+                        </TextBlock>
+                    </CheckBox.ToolTip>
+                </CheckBox>
+                <CheckBox x:Name="ChkAutoStart" Content="サインイン時に自動的に開始する" Margin="20,0,0,0" VerticalAlignment="Center" ToolTip="有効にすると、WSLディストリビューションを自動的に開始します。"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel x:Name="PanelAdvancedStartOptions" Grid.Row="4" Margin="0,0,0,10" Visibility="Collapsed">
+            <TextBlock Text="開始時の動作設定:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <CheckBox x:Name="ChkAutoLaunchBrowser" Content="ブラウザを自動起動する" VerticalAlignment="Center"/>
+                <CheckBox x:Name="ChkAutoUpdateAlpine" Content="Alpineを自動更新する" Margin="20,0,0,0" VerticalAlignment="Center" ToolTip="有効にすると、開始時にapk update &amp;&amp; apk upgrade --no-cacheします。"/>
+                <CheckBox x:Name="ChkAutoUpdateApp" Content="docker-rep2を自動更新する" Margin="20,0,0,0" VerticalAlignment="Center" ToolTip="有効にすると、開始時にdocker compose pullします。"/>
+                <CheckBox x:Name="ChkDebugLogEnabled" Content="デバッグログを有効にする" Margin="20,0,0,0" VerticalAlignment="Center" ToolTip="有効にすると、DataPath/win/win-error.txtにデバッグログを出力します。"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel x:Name="PanelMaintenance" Grid.Row="5" VerticalAlignment="Bottom" Margin="0,0,0,20" Visibility="Collapsed">
+            <TextBlock Text="メンテナンス:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="0,0,10,0">
+                    <Button x:Name="BtnUpdateAlpine" Style="{StaticResource PageButtonStyle}" Content="Alpine Linux の更新" Width="180" Height="35" Click="BtnUpdateAlpine_Click"/>
+                    <TextBlock Text="※x.y.zのzのみ更新出来ます。" Foreground="Gray" FontSize="11" Margin="0,2,0,0" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <Button x:Name="BtnUpdateApp" Style="{StaticResource PageButtonStyle}" Content="docker-rep2 の更新" Width="180" Height="35" Margin="0,0,10,0" VerticalAlignment="Top" Click="BtnUpdateApp_Click"/>
+                <Button x:Name="BtnShowDiff" Style="{StaticResource PageButtonStyle}" Content="設定の差分を表示" Width="180" Height="35" VerticalAlignment="Top" Click="BtnShowDiff_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnBack" Style="{StaticResource PageButtonStyle}" Content="戻る" Width="120" Height="35" Margin="0,0,10,0" Click="BtnBack_Click"/>
+            <Button x:Name="BtnNext" Style="{StaticResource PageButtonStyle}" Content="インストール開始" Width="150" Height="35" Margin="0,0,10,0" Click="BtnNext_Click"/>
+            <Button x:Name="BtnCancel" Style="{StaticResource PageButtonStyle}" Content="キャンセル" Width="120" Height="35" Click="BtnCancel_Click"/>
+        </StackPanel>
+
+        <Grid x:Name="UpdateOverlay" Grid.RowSpan="7" Background="#AA000000" Visibility="Collapsed" Margin="-20,-15,-20,-15">
+            <Border Background="White" CornerRadius="10" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,20" BorderBrush="DimGray" BorderThickness="1">
+                <StackPanel HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="250" Height="12" Margin="0,0,0,15"/>
+                    <TextBlock x:Name="TxtUpdateStatus" Text="更新中..." FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
