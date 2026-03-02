@@ -112,6 +112,7 @@ namespace docker_rep2_win
         public bool KeepWslRunning { get; set; } = true;
         public bool HostAddressLoopback { get; set; } = true;
         public string DownloadUrl { get; set; } = string.Empty;
+        public string ManifestDownloadUrl { get; set; } = string.Empty;
         public string SelectedHash { get; set; } = string.Empty;
 
         public void Load()
@@ -135,6 +136,8 @@ namespace docker_rep2_win
         public const string AppPublisher = "fukumen";
 
         public const string AppGitHubUrl = "https://github.com/fukumen/docker-rep2-win";
+
+        public const string ManifestUrl = "https://gist.githubusercontent.com/fukumen/341c40b1a0861bb72b24736a2c7ca49e/raw/versions.json";
 
         public const string AppExeName = "docker-rep2-win.exe";
 

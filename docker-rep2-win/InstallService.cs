@@ -289,7 +289,9 @@ namespace docker_rep2_win
         {
             string expectedHash = settings.SelectedHash;
 
-            if (string.IsNullOrEmpty(expectedHash))
+            bool isArchMismatch = !IsSameArchitecture(settings.DownloadUrl, settings.ManifestDownloadUrl);
+
+            if (string.IsNullOrEmpty(expectedHash) || isArchMismatch)
             {
                 using var client = new HttpClient();
                 string hashUrl = $"{settings.DownloadUrl}.sha512";
@@ -306,8 +308,32 @@ namespace docker_rep2_win
 
             if (!string.Equals(actualHash, expectedHash.Trim().ToLower(), StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception($"ハッシュ検証に失敗しました。\n期待値: {expectedHash}\n実際の値: {actualHash}\nファイルが破損している可能性があります。");
+                string msg = $"ハッシュ検証に失敗しました。\n\n" +
+                             $"[デバッグ情報]\n" +
+                             $"ダウンロードURL: {settings.DownloadUrl}\n" +
+                             $"マニフェスト基準URL: {settings.ManifestDownloadUrl}\n" +
+                             $"期待値: {expectedHash}\n" +
+                             $"実際の値: {actualHash}\n\n" +
+                             $"ファイルが破損しているか、アーキテクチャが一致していない可能性があります。";
+                throw new Exception(msg);
             }
+        }
+
+        private static bool IsSameArchitecture(string url1, string url2)
+        {
+            if (string.IsNullOrEmpty(url1) || string.IsNullOrEmpty(url2)) return false;
+
+            string arch1 = GetArchName(url1);
+            string arch2 = GetArchName(url2);
+
+            return !string.IsNullOrEmpty(arch1) && arch1 == arch2;
+        }
+
+        private static string GetArchName(string url)
+        {
+            if (url.Contains("aarch64")) return "aarch64";
+            if (url.Contains("x86_64")) return "x86_64";
+            return string.Empty;
         }
 
         private static async Task DeployAppConfigAsync(AppSettings settings, CancellationToken cancellationToken)
@@ -453,7 +479,23 @@ namespace docker_rep2_win
             {
                 if (Directory.Exists(settings.DataPath))
                 {
-                    await Task.Run(() => Directory.Delete(settings.DataPath, true));
+                    bool shouldDelete = false;
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var result = MessageBox.Show(
+                            $"セットアップ中にエラーが発生しました。\n故障診断のために、データフォルダ内の 'win-error.txt' を確認・コピーすることをお勧めします。\n\n作成されたデータフォルダ ({settings.DataPath}) を今すぐ削除しますか？\n(ログを残す場合は 'いいえ' を選択してください)",
+                            "クリーンアップの確認",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+
+                        if (result == MessageBoxResult.Yes) shouldDelete = true;
+                    });
+
+                    if (shouldDelete)
+                    {
+                        await Task.Run(() => Directory.Delete(settings.DataPath, true));
+                    }
                 }
             }
             catch { }

@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading;
 using Microsoft.Win32;
 using System.Windows;
+using System.Runtime.InteropServices;
+using Windows.Win32;
 
 namespace docker_rep2_win
 {
@@ -183,13 +185,35 @@ namespace docker_rep2_win
 
                 // BIOS仮想化設定 (VirtualizationFirmwareEnabled)
                 try {
-                    using (var searcher = new ManagementObjectSearcher("Select VirtualizationFirmwareEnabled from Win32_Processor"))
-                    using (var collection = searcher.Get())
+                    // 1. WSLが既に正常動作しているなら、UEFI仮想化は間違いなく有効
+                    if (wsl)
                     {
-                        foreach (var item in collection)
+                        biosVirt = true;
+                    }
+                    else
+                    {
+                        // 2. WSLが未インストール等の場合のみ、UEFI設定を直接確認する
+                        // Windows API (IsProcessorFeaturePresent) による判定
+                        if (PInvoke.IsProcessorFeaturePresent(Windows.Win32.System.Threading.PROCESSOR_FEATURE_ID.PF_VIRT_FIRMWARE_ENABLED))
                         {
-                            biosVirt = (bool)item["VirtualizationFirmwareEnabled"];
-                            break;
+                            biosVirt = true;
+                        }
+                        else
+                        {
+                            // 3. APIで判定できない場合のみ WMI による確認を行う
+                            using (var searcher = new ManagementObjectSearcher("Select VirtualizationFirmwareEnabled from Win32_Processor"))
+                            using (var collection = searcher.Get())
+                            {
+                                foreach (var item in collection)
+                                {
+                                    var val = item["VirtualizationFirmwareEnabled"];
+                                    if (val != null && val is bool b && b)
+                                    {
+                                        biosVirt = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch { biosVirt = false; }

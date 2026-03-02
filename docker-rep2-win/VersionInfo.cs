@@ -10,6 +10,9 @@ namespace docker_rep2_win
         [JsonPropertyName("url")]
         public string Url { get; set; } = string.Empty;
 
+        [JsonIgnore]
+        public string ManifestUrl { get; set; } = string.Empty;
+
         [JsonPropertyName("hash")]
         public string Hash { get; set; } = string.Empty;
 

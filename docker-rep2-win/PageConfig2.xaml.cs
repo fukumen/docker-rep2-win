@@ -313,6 +313,7 @@ namespace docker_rep2_win
             {
                 user.SelectedVersion = selectedVersion.Version;
                 settings.DownloadUrl = selectedVersion.Url;
+                settings.ManifestDownloadUrl = !string.IsNullOrEmpty(selectedVersion.ManifestUrl) ? selectedVersion.ManifestUrl : selectedVersion.Url;
                 settings.SelectedHash = selectedVersion.Hash;
             }
 

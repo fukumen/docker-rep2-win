@@ -172,6 +172,7 @@ namespace docker_rep2_win
                 {
                     settings.User.SelectedVersion = toSelect.Version;
                     settings.DownloadUrl = toSelect.Url;
+                    settings.ManifestDownloadUrl = !string.IsNullOrEmpty(toSelect.ManifestUrl) ? toSelect.ManifestUrl : toSelect.Url;
                     settings.SelectedHash = toSelect.Hash;
                 }
                 

@@ -13,7 +13,6 @@ namespace docker_rep2_win
         private const bool FetchAllPatchVersions = false;
 #endif
 
-        private const string ManifestUrl = "https://gist.githubusercontent.com/fukumen/341c40b1a0861bb72b24736a2c7ca49e/raw/versions.json";
         private const string MirrorUrl = "https://dl-cdn.alpinelinux.org/alpine/";
 
         public static async Task<List<VersionInfo>> FetchVersionsAsync()
@@ -26,12 +25,13 @@ namespace docker_rep2_win
 
             try
             {
-                var json = await client.GetStringAsync(ManifestUrl);
+                var json = await client.GetStringAsync(AppInfo.ManifestUrl);
                 var manifest = JsonSerializer.Deserialize<VersionManifest>(json);
                 if (manifest?.Versions != null)
                 {
                     foreach (var v in manifest.Versions)
                     {
+                        v.ManifestUrl = v.Url;
                         v.Url = GenerateUrl(v.Version, arch);
                         resultDict[v.Version] = v;
                     }

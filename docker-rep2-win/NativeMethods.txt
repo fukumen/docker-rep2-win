@@ -29,3 +29,4 @@ CREATE_PROCESS_LOGON_FLAGS
 CloseHandle
 IShellDispatch2
 Shell
+IsProcessorFeaturePresent
