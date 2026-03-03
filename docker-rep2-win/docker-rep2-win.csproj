@@ -30,6 +30,14 @@
     <PackageReference Include="System.Management" Version="10.0.3" />
   </ItemGroup>
 
-  <Import Project="LocalBuild.targets.user" Condition="Exists('LocalBuild.targets.user')" />
+  <Target Name="CopyCustomCompose" AfterTargets="Build">
+    <PropertyGroup>
+      <CustomComposePathFile>..\custom-compose.user</CustomComposePathFile>
+    </PropertyGroup>
+    <ReadLinesFromFile File="$(CustomComposePathFile)" Condition="Exists('$(CustomComposePathFile)')">
+      <Output TaskParameter="Lines" ItemName="CustomComposePath" />
+    </ReadLinesFromFile>
+    <Copy SourceFiles="@(CustomComposePath)" DestinationFiles="$(OutDir)docker-compose.yml" SkipUnchangedFiles="true" Condition="'@(CustomComposePath)' != ''" />
+  </Target>
 
 </Project>

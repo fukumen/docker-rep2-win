@@ -42,29 +42,23 @@ _publish arch version:
     dotnet publish {{PROJECT}} -c Release -r {{arch}} --self-contained false -o publish/temp-{{arch}} /p:Version={{version}} /p:PublishReadyToRun=true /p:PublishSingleFile=false
     
     @echo "--- Removing debug symbols (.pdb) ---"
-    {{ if os() == "windows" { \
-        "Get-ChildItem -Path publish/temp-" + arch + " -Filter *.pdb | Remove-Item -Force" \
-    } else { \
-        "rm -f publish/temp-" + arch + "/*.pdb" \
-    } }}
+    Get-ChildItem -Path publish/temp-{{arch}} -Filter *.pdb | Remove-Item -Force
 
     @echo "--- Zipping payload into publish directory ---"
-    {{ if os() == "windows" { \
-        "if (-not (Test-Path publish)) { New-Item -ItemType Directory -Path publish }; " + \
-        "Compress-Archive -Path publish/temp-" + arch + "/* -DestinationPath (Join-Path (Get-Location) 'publish/payload.zip') -Force" \
-    } else { \
-        "(cd publish/temp-" + arch + " && zip -r ../payload.zip .)" \
-    } }}
+    if (-not (Test-Path publish)) { New-Item -ItemType Directory -Path publish }; \
+    Compress-Archive -Path publish/temp-{{arch}}/* -DestinationPath (Join-Path (Get-Location) 'publish/payload.zip') -Force
     
     @echo "--- Building Setup Wrapper ---"
     dotnet publish {{SETUP_PROJECT}} -c Release -r {{arch}} -p:PublishAot=true -o publish/{{arch}} /p:Version={{version}}
+
+    @echo "--- Copying custom docker-compose.yml to publish directory ---"
+    if (Test-Path custom-compose.user) { \
+        $yml = Get-Content custom-compose.user -Raw; \
+        if ($yml -and (Test-Path $yml.Trim())) { Copy-Item $yml.Trim() publish/{{arch}}/docker-compose.yml -Force } \
+    }
     
     @echo "--- Cleaning up ---"
-    {{ if os() == "windows" { \
-        "Remove-Item publish/temp-" + arch + " -Recurse -Force; if (Test-Path publish/payload.zip) { Remove-Item publish/payload.zip -Force }" \
-    } else { \
-        "rm -rf publish/temp-" + arch + " publish/payload.zip" \
-    } }}
+    Remove-Item publish/temp-{{arch}} -Recurse -Force; if (Test-Path publish/payload.zip) { Remove-Item publish/payload.zip -Force }
 
 eol-check:
     #!/usr/bin/env python3

@@ -39,6 +39,14 @@ namespace docker_rep2_win_setup
                 Directory.CreateDirectory(tempDir);
                 ExtractPayload(tempDir);
 
+                // もし docker-rep2-win-setup.exe と同じ場所に docker-compose.yml があればコピー
+                // これにより、カスタム構成でインストールを開始できる
+                string localCompose = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "docker-compose.yml");
+                if (File.Exists(localCompose))
+                {
+                    File.Copy(localCompose, Path.Combine(tempDir, "docker-compose.yml"), true);
+                }
+
                 string targetExe = Path.Combine(tempDir, exeName);
 
                 if (!File.Exists(targetExe))
