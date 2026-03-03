@@ -38,5 +38,14 @@
                 <Button x:Name="BtnExecute" Style="{StaticResource PageButtonStyle}" Content="アンインストール実行" Width="180" Height="40" Click="BtnExecute_Click"/>
             </StackPanel>
         </StackPanel>
+
+        <Grid x:Name="UpdateOverlay" Background="#AA000000" Visibility="Collapsed" Margin="-20">
+            <Border Background="White" CornerRadius="10" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,20" BorderBrush="DimGray" BorderThickness="1">
+                <StackPanel HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="250" Height="12" Margin="0,0,0,15"/>
+                    <TextBlock x:Name="TxtUpdateStatus" Text="アンインストール中..." FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

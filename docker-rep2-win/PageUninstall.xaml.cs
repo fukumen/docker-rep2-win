@@ -45,6 +45,9 @@ namespace docker_rep2_win
 
             try
             {
+                UpdateOverlay.Visibility = Visibility.Visible;
+                TxtUpdateStatus.Text = "アンインストール中...";
+
                 await UninstallService.ExecuteUninstallAsync(ChkRemoveData.IsChecked == true);
 
                 // 実行場所がインストール先かどうか判定
@@ -89,6 +92,10 @@ namespace docker_rep2_win
                 MessageBox.Show($"アンインストール中にエラーが発生しました。\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 // エラー時は削除せずに残す（ユーザーが確認できるようにする）
                 BtnExecute.IsEnabled = true;
+            }
+            finally
+            {
+                UpdateOverlay.Visibility = Visibility.Collapsed;
             }
         }
 
