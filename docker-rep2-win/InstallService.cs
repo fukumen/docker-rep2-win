@@ -11,6 +11,11 @@ namespace docker_rep2_win
 {
     public static class InstallService
     {
+        public class InstallHooks
+        {
+            public Action? BeforeDeploy { get; set; }
+        }
+
         private const string SetupScriptTemplate = """
             apk update
             #apk upgrade --no-cache
@@ -47,19 +52,10 @@ namespace docker_rep2_win
 
         private const string ComposeRawUrl = "https://raw.githubusercontent.com/fukumen/docker-rep2/php8/docker-compose.yml";
 
-        private const string OverrideComposeTemplate = """
-            services:
-              rep2php8:
-                volumes:
-                  - ./php-local.ini:/usr/local/etc/php/conf.d/z-php-local.ini
-                environment:
-                  SECRET_KEY: "{0}"
-            """;
-
         public delegate void ProgressHandler(double percentage, string status);
 
         // AppMode.Install
-        public static async Task RunInstallAsync(ProgressHandler onProgress, CancellationToken cancellationToken = default)
+        public static async Task RunInstallAsync(ProgressHandler onProgress, InstallHooks? hooks = null, CancellationToken cancellationToken = default)
         {
             var settings = ((App)Application.Current).Settings;
             try
@@ -80,7 +76,7 @@ namespace docker_rep2_win
                 await BuildWslBaseAsync(settings, (p, s) => onProgress(10 + p * 0.5, s), cancellationToken); // 10% -> 60%
 
                 onProgress(60, "設定ファイルを作成中...");
-                await DeployAppConfigAsync(settings, cancellationToken);
+                await DeployAppConfigAsync(settings, hooks, cancellationToken);
 
                 onProgress(70, "WSLをシャットダウン中...");
                 await StartApplicationAsync(settings, (p, s) => onProgress(70 + p * 0.3, s), useShutdown: true, cancellationToken); // 70% -> 100%
@@ -90,7 +86,7 @@ namespace docker_rep2_win
 
                 SetStartup(settings.User.AutoStart);
 
-                settings.User.Save();
+                SaveFinalSettings(settings);
 
                 // スタートメニューを強制再起動
                 foreach (var p in Process.GetProcessesByName("StartMenuExperienceHost"))
@@ -110,7 +106,7 @@ namespace docker_rep2_win
         }
 
         // AppMode.UserSetup
-        public static async Task RunUserSetupAsync(ProgressHandler onProgress, CancellationToken cancellationToken = default)
+        public static async Task RunUserSetupAsync(ProgressHandler onProgress, InstallHooks? hooks = null, CancellationToken cancellationToken = default)
         {
             var settings = ((App)Application.Current).Settings;
             try
@@ -130,14 +126,14 @@ namespace docker_rep2_win
                 await BuildWslBaseAsync(settings, (p, s) => onProgress(15 + p * 0.45, s), cancellationToken); // 15% -> 60%
 
                 onProgress(60, "設定ファイルを作成中...");
-                await DeployAppConfigAsync(settings, cancellationToken);
+                await DeployAppConfigAsync(settings, hooks, cancellationToken);
 
                 onProgress(70, "WSLをシャットダウン中...");
                 await StartApplicationAsync(settings, (p, s) => onProgress(70 + p * 0.3, s), useShutdown: true, cancellationToken);
 
                 SetStartup(settings.User.AutoStart);
 
-                settings.User.Save();
+                SaveFinalSettings(settings);
 
                 onProgress(100, "セットアップ完了！");
             }
@@ -150,10 +146,10 @@ namespace docker_rep2_win
         }
 
         // AppMode.Config
-        public static async Task RunConfigAsync(ProgressHandler onProgress, CancellationToken cancellationToken = default)
+        public static async Task RunConfigAsync(ProgressHandler onProgress, InstallHooks? hooks = null, CancellationToken cancellationToken = default)
         {
             var settings = ((App)Application.Current).Settings;
-            
+
             try
             {
                 // ここに来る時は常にWSLの再起動や再構築を伴う変更がある
@@ -179,14 +175,14 @@ namespace docker_rep2_win
                     startAppScale = 0.9;
                 }
 
-                await DeployAppConfigAsync(settings, cancellationToken);
+                await DeployAppConfigAsync(settings, hooks, cancellationToken);
 
                 onProgress(startAppPercent, $"{AppInfo.DistroName}を停止中...");
                 await StartApplicationAsync(settings, (p, s) => onProgress(startAppPercent + p * startAppScale, s), useShutdown: false, cancellationToken);
 
                 SetStartup(settings.User.AutoStart);
 
-                settings.User.Save();
+                SaveFinalSettings(settings);
 
                 onProgress(100, "設定の変更が完了しました！");
             }
@@ -199,7 +195,7 @@ namespace docker_rep2_win
         }
 
         // AppMode.Update
-        public static async Task RunUpdateAsync(ProgressHandler onProgress, CancellationToken cancellationToken = default)
+        public static async Task RunUpdateAsync(ProgressHandler onProgress, InstallHooks? hooks = null, CancellationToken cancellationToken = default)
         {
             var settings = ((App)Application.Current).Settings;
             try
@@ -208,7 +204,7 @@ namespace docker_rep2_win
                 CopySelfAndCreateShortcuts(settings);
 
                 onProgress(20, "設定ファイルを更新中...");
-                await DeployAppConfigAsync(settings, cancellationToken);
+                await DeployAppConfigAsync(settings, hooks, cancellationToken);
 
                 onProgress(40, $"{AppInfo.DistroName}をセットアップ中...");
                 ((App)Application.Current).UpdateMonitorPort(settings.User.MonitorPort); 
@@ -220,7 +216,7 @@ namespace docker_rep2_win
 
                 SetStartup(settings.User.AutoStart);
 
-                settings.User.Save();
+                SaveFinalSettings(settings);
 
                 onProgress(80, "WSLを再起動中...");
                 await StartApplicationAsync(settings, (p, s) => onProgress(80 + p * 0.2, s), useShutdown: false, cancellationToken);
@@ -336,8 +332,10 @@ namespace docker_rep2_win
             return string.Empty;
         }
 
-        private static async Task DeployAppConfigAsync(AppSettings settings, CancellationToken cancellationToken)
+        private static async Task DeployAppConfigAsync(AppSettings settings, InstallHooks? hooks, CancellationToken cancellationToken)
         {
+            hooks?.BeforeDeploy?.Invoke();
+
             string appDataPath = settings.WindowsDataPath;
             if (string.IsNullOrEmpty(appDataPath)) return;
 
@@ -347,12 +345,12 @@ namespace docker_rep2_win
             await File.WriteAllTextAsync(phpIniPath, phpIniContent, cancellationToken);
 
             string yamlContent;
-            string localComposePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "docker-compose.yml");
+            string localComposeFileRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "docker-compose.yml");
 
-            if (File.Exists(localComposePath))
+            if (File.Exists(localComposeFileRoot))
             {
                 // ローカルファイルがあればそれを使用
-                yamlContent = await File.ReadAllTextAsync(localComposePath, cancellationToken);
+                yamlContent = await File.ReadAllTextAsync(localComposeFileRoot, cancellationToken);
             }
             else
             {
@@ -366,10 +364,38 @@ namespace docker_rep2_win
             string filePath = Path.Combine(appDataPath, "docker-compose.yml");
             await File.WriteAllTextAsync(filePath, yamlContent, cancellationToken);
 
-            string overrideContent = string.Format(OverrideComposeTemplate, settings.User.SecretKey);
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("services:");
+            sb.AppendLine("  rep2php8:");
+            sb.AppendLine("    volumes:");
+            sb.AppendLine("      - ./php-local.ini:/usr/local/etc/php/conf.d/z-php-local.ini");
+
+            if (settings.User.EnableCertbot)
+            {
+                sb.AppendLine("      - ./certbot/conf:/etc/letsencrypt:ro");
+            }
+
+            sb.AppendLine("    environment:");
+            sb.AppendLine($"      SECRET_KEY: \"{settings.User.SecretKey}\"");
+
+            if (settings.User.EnableCertbot)
+            {
+                sb.AppendLine("  certbot:");
+                sb.AppendLine("    image: rep2-certbot");
+                sb.AppendLine("    pid: \"service:rep2php8\"");
+                sb.AppendLine("    depends_on:");
+                sb.AppendLine("      - rep2php8");
+                sb.AppendLine("    entrypoint: [\"/bin/sh\", \"-c\", \"while true; do certbot renew --deploy-hook 'kill -USR1 $$(pidof caddy)'; sleep 86400; done\"]");
+                sb.AppendLine("    build:");
+                sb.AppendLine("      context: ./certbot");
+                sb.AppendLine("    volumes:");
+                sb.AppendLine("      - ./certbot/conf:/etc/letsencrypt");
+                sb.AppendLine("      - ./certbot/logs:/var/log/letsencrypt");
+                sb.AppendLine("      - ./certbot/certbot.ini:/certbot.ini");
+            }
 
             string overridePath = Path.Combine(appDataPath, "docker-compose.override.yml");
-            await File.WriteAllTextAsync(overridePath, overrideContent, cancellationToken);
+            await File.WriteAllTextAsync(overridePath, sb.ToString(), cancellationToken);
         }
 
         private static async Task StartApplicationAsync(AppSettings settings, ProgressHandler onProgress, bool useShutdown, CancellationToken cancellationToken)
@@ -614,6 +640,12 @@ namespace docker_rep2_win
                 Logger.Log(ex, "SetStartup failed");
                 MessageBox.Show("スタートアップ設定の変更に失敗しました: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private static void SaveFinalSettings(AppSettings settings)
+        {
+            settings.User.PendingCertbotUpdate = false;
+            settings.User.Save();
         }
 
         private static async Task ConfigureWslConfigAsync(CancellationToken cancellationToken)

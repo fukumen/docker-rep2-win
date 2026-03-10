@@ -10,15 +10,23 @@ SETUP_PROJECT := "docker-rep2-win-setup/docker-rep2-win-setup.csproj"
 default:
     @just build
 
+_pre_build:
+    @{{ if os() == "windows" { \
+        "if (Test-Path justfile.user) { just -f justfile.user _pre_build }" \
+    } else { \
+        "if [ -f justfile.user ]; then just -f justfile.user _pre_build; fi" \
+    } }}
+
 list:
     @just --list
 
-build rid="win-x64":
+build rid="win-x64": _pre_build
     dotnet build {{PROJECT}} -r {{rid}} --no-self-contained /p:Version={{version}}
 
 clean:
     @echo "Cleaning build artifacts..."
     {{ if os() == "windows" { \
+        "Start-Process powershell -ArgumentList '-NoProfile -Command Restart-Service LanmanWorkstation -Force' -Verb RunAs -WindowStyle Hidden -Wait -WorkingDirectory 'C:\\'; " + \
         "if (Test-Path publish) { Remove-Item -Recurse -Force publish }; " + \
         "Get-ChildItem -Path . -Include bin,obj -Recurse | Remove-Item -Recurse -Force" \
     } else { \
@@ -26,7 +34,7 @@ clean:
     } }}
     @echo "Done."
 
-run:
+run: _pre_build
     dotnet run --project {{PROJECT}}
 
 publish version=version:
@@ -37,7 +45,7 @@ publish version=version:
 publish-win-x64 version=version:
     @just _publish win-x64 {{version}}
 
-_publish arch version:
+_publish arch version: _pre_build
     @echo "--- Building {{arch}} (v{{version}}) ---"
     dotnet publish {{PROJECT}} -c Release -r {{arch}} --self-contained false -o publish/temp-{{arch}} /p:Version={{version}} /p:PublishReadyToRun=true /p:PublishSingleFile=false
     

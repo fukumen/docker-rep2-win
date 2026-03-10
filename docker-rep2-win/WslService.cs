@@ -65,6 +65,18 @@ namespace docker_rep2_win
                 psi.StandardInputEncoding = Encoding.UTF8;
             }
 
+            // docker compose 用の環境変数をセット
+            var app = (App)Application.Current;
+            var settings = app.Settings;
+            string composeFiles = "docker-compose.yml:docker-compose.override.yml";
+            string localFile = Path.Combine(settings.WindowsDataPath, "docker-compose.local.yml");
+            if (File.Exists(localFile))
+            {
+                composeFiles += ":docker-compose.local.yml";
+            }
+            psi.EnvironmentVariables["COMPOSE_FILE"] = composeFiles;
+            psi.EnvironmentVariables["WSLENV"] = "COMPOSE_FILE/u";
+
             return await RunProcessAsync(psi, input, timeoutSeconds, cancellationToken);
         }
 

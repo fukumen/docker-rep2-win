@@ -1,0 +1,34 @@
+<Page x:Class="docker_rep2_win.PageComposeLocal"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:docker_rep2_win"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="PageComposeLocal"
+      Loaded="PageComposeLocal_Loaded">
+
+    <Grid Background="White" Margin="20,15,20,15" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="docker-compose.local.yml の編集" FontSize="18" FontWeight="Bold"/>
+            <TextBlock x:Name="TxtDescription" Foreground="DimGray" FontSize="11"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Margin="0,0,0,15">
+            <TextBox x:Name="TxtEditor" FontFamily="Consolas, Lucida Console, Monospace" FontSize="12" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" BorderThickness="0" Margin="5"/>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnDelete" Style="{StaticResource PageButtonStyle}" Content="設定を初期化" Width="120" Height="35" Margin="0,0,10,0" Click="BtnDelete_Click" Foreground="Crimson" IsEnabled="False"/>
+            <Button x:Name="BtnSave" Style="{StaticResource PageButtonStyle}" Content="決定 (一覧へ戻る)" Width="150" Height="35" Margin="0,0,10,0" Click="BtnSave_Click"/>
+            <Button x:Name="BtnBack" Style="{StaticResource PageButtonStyle}" Content="キャンセル" Width="100" Height="35" Click="BtnBack_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

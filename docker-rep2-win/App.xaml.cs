@@ -292,10 +292,12 @@ namespace docker_rep2_win
             {
                 Process.Start(startInfo);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.Log(ex, "管理者権限での再起動に失敗しました。");
+
                 MessageBox.Show(
-                    "管理者権限が必要です。操作はキャンセルされました。",
+                    "管理者権限が必要です。操作はキャンセルされました。\n\n詳細: {ex.Message}",
                     "権限エラー",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }

@@ -25,6 +25,8 @@ namespace docker_rep2_win
                 UpdateUI(app.Monitor.IsRunning);
             }
 
+            UpdateCertInfo();
+
             // 初期フォーカスの設定 (描画完了後に実行)
             Dispatcher.BeginInvoke(new Action(() => {
                 IInputElement target = BtnBrowser.IsEnabled ? BtnBrowser : (BtnStart.IsVisible ? BtnStart : BtnStop);
@@ -87,6 +89,52 @@ namespace docker_rep2_win
                 StatusLabel.Text = "停止中";
                 StatusLabel.Foreground = new SolidColorBrush(Color.FromRgb(0xC6, 0x28, 0x28));
             }
+        }
+
+        private void UpdateCertInfo()
+        {
+            var app = (App)Application.Current;
+            var certInfo = CertificateService.GetCertificateInfo(app.Settings);
+
+            if (certInfo.Type == "None")
+            {
+                TxtCertInfo.Text = "SSL: 未設定";
+                TxtCertInfo.Foreground = new SolidColorBrush(Colors.DimGray);
+                CertInfoIndicator.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F0F0"));
+                CertInfoIndicator.Visibility = Visibility.Visible;
+                return;
+            }
+
+            string dateStr = certInfo.ExpirationDate?.ToString("yyyy/MM/dd") ?? "不明";
+            string daysStr = certInfo.RemainingDays.HasValue ? $"残り{certInfo.RemainingDays}日" : "不明";
+            
+            TxtCertInfo.Text = $"SSL: {certInfo.Type} (期限: {dateStr}, {daysStr})";
+
+            if (certInfo.RemainingDays.HasValue)
+            {
+                if (certInfo.RemainingDays.Value > 30)
+                {
+                    TxtCertInfo.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#107C10"));
+                    CertInfoIndicator.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E9F5E9"));
+                }
+                else if (certInfo.RemainingDays.Value > 0)
+                {
+                    TxtCertInfo.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#d97706")); // Orange
+                    CertInfoIndicator.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fef3c7"));
+                }
+                else
+                {
+                    TxtCertInfo.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C50F1F"));
+                    CertInfoIndicator.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FCE8E8"));
+                }
+            }
+            else
+            {
+                TxtCertInfo.Foreground = new SolidColorBrush(Colors.DimGray);
+                CertInfoIndicator.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F0F0"));
+            }
+
+            CertInfoIndicator.Visibility = Visibility.Visible;
         }
 
         private void Start_Click(object sender, RoutedEventArgs e)

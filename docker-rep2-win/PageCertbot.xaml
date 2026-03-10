@@ -1,0 +1,74 @@
+<Page x:Class="docker_rep2_win.PageCertbot"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:docker_rep2_win"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="PageCertbot"
+      Loaded="PageCertbot_Loaded">
+
+    <Grid Background="White" Margin="20,15,20,15" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,0">
+            <TextBlock Text="Certbot (SSL証明書) の設定" FontSize="18" FontWeight="Bold"/>
+            <TextBlock Text="※ DNS-01チャレンジを利用してLet's encrypotから証明書を取得・運用するための設定です。" Foreground="DimGray" FontSize="11" Margin="0,5,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,15,0,10">
+                <TextBlock Text="現在の状態: " FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtCertbotStatus" Text="未設定" VerticalAlignment="Center" Margin="5,0,20,0"/>
+                <Button x:Name="BtnCertonly" Style="{StaticResource PageButtonStyle}" Content="証明書を取得して HTTPS を有効化する" Width="260" Height="30" Click="BtnCertonly_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Dockerfile (プラグイン等のインストール)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
+                    <TextBox x:Name="TxtDockerfile" FontFamily="Consolas, Lucida Console, Monospace" FontSize="12" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" BorderThickness="0" Margin="5"/>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="certbot.ini (認証情報など)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1">
+                    <TextBox x:Name="TxtCertbotIni" FontFamily="Consolas, Lucida Console, Monospace" FontSize="12" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" BorderThickness="0" Margin="5"/>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnDelete" Style="{StaticResource PageButtonStyle}" Content="設定を初期化" Width="120" Height="35" Margin="0,0,10,0" Click="BtnDelete_Click" Foreground="Crimson"/>
+            <Button x:Name="BtnSave" Style="{StaticResource PageButtonStyle}" Content="ファイルを保存" Width="120" Height="35" Margin="0,0,10,0" Click="BtnSave_Click"/>
+            <Button x:Name="BtnBack" Style="{StaticResource PageButtonStyle}" Content="戻る" Width="100" Height="35" Click="BtnBack_Click"/>
+        </StackPanel>
+
+        <Grid x:Name="UpdateOverlay" Grid.RowSpan="3" Background="#AA000000" Visibility="Collapsed" Margin="-20,-15,-20,-15">
+            <Border Background="White" CornerRadius="10" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,20" BorderBrush="DimGray" BorderThickness="1">
+                <StackPanel HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="250" Height="12" Margin="0,0,0,15"/>
+                    <TextBlock x:Name="TxtUpdateStatus" Text="処理中..." FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

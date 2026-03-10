@@ -54,6 +54,16 @@ namespace docker_rep2_win
         {
             string wslPath = WslService.GetAppDataWslPath() ?? throw new Exception("設定ファイルの保存先が見つかりません。");
             await WslService.RunCommandAsync($"cd \"{wslPath}\" && docker compose up -d", -1, false, cancellationToken);
+
+            var settings = ((App)System.Windows.Application.Current).Settings;
+            string command = $"cd \"{wslPath}\" && docker compose config | grep -E \"target: /etc/(caddy/)?Caddyfile\"";
+            var result = await WslService.RunCommandAsync(command, 5000, true, cancellationToken);
+            bool isMounted = result.ExitCode == 0;
+            if (settings.User.IsCaddyfileMounted != isMounted)
+            {
+                settings.User.IsCaddyfileMounted = isMounted;
+                settings.User.Save();
+            }
         }
 
         public static async Task DownAsync(int timeoutMs = 30000, CancellationToken cancellationToken = default)

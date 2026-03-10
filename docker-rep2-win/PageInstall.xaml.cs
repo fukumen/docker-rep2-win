@@ -10,12 +10,14 @@ namespace docker_rep2_win
     public partial class PageInstall : Page
     {
         private readonly AppMode _mode;
+        private readonly InstallService.InstallHooks? _hooks;
         private readonly CancellationTokenSource _cts = new();
 
-        public PageInstall(AppMode mode = AppMode.Install)
+        public PageInstall(AppMode mode = AppMode.Install, InstallService.InstallHooks? hooks = null)
         {
             InitializeComponent();
             _mode = mode;
+            _hooks = hooks;
 
             if (_mode == AppMode.Update)
             {
@@ -61,19 +63,19 @@ namespace docker_rep2_win
 
                 if (_mode == AppMode.Update)
                 {
-                    await InstallService.RunUpdateAsync(progress, _cts.Token);
+                    await InstallService.RunUpdateAsync(progress, _hooks, _cts.Token);
                 }
                 else if (_mode == AppMode.Config)
                 {
-                    await InstallService.RunConfigAsync(progress, _cts.Token);
+                    await InstallService.RunConfigAsync(progress, _hooks, _cts.Token);
                 }
                 else if (_mode == AppMode.UserSetup)
                 {
-                    await InstallService.RunUserSetupAsync(progress, _cts.Token);
+                    await InstallService.RunUserSetupAsync(progress, _hooks, _cts.Token);
                 }
                 else
                 {
-                    await InstallService.RunInstallAsync(progress, _cts.Token);
+                    await InstallService.RunInstallAsync(progress, _hooks, _cts.Token);
                 }
 
                 // 完了したら次のページへ

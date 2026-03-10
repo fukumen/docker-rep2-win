@@ -24,6 +24,13 @@
                     <TextBlock x:Name="StatusLabel" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
+
+            <Border x:Name="CertInfoIndicator" Margin="20,0,0,0" Padding="12,5" CornerRadius="15" VerticalAlignment="Center" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔒 " FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtCertInfo" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <UniformGrid Grid.Row="1" Columns="2" Margin="20" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle">

@@ -12,9 +12,13 @@ namespace docker_rep2_win
     public partial class PageConfig2 : Page
     {
         public bool IsConfigMode { get; }
+        private readonly ConfigSessionContext _configContext = new();
 
         public PageConfig2(bool isConfigMode = false)
         {
+            var settings = ((App)Application.Current).Settings;
+            var user = settings.User;
+
             InitializeComponent();
             IsConfigMode = isConfigMode;
 
@@ -23,6 +27,8 @@ namespace docker_rep2_win
 
             if (IsConfigMode)
             {
+                _configContext.Load(settings.WindowsDataPath);
+
                 TxtTitle.Text = "設定の変更";
                 BtnNext.Content = "更新";
                 BtnBack.Visibility = Visibility.Collapsed;
@@ -31,8 +37,6 @@ namespace docker_rep2_win
                 TxtConfigNotice.Visibility = Visibility.Collapsed;
             }
 
-            var settings = ((App)Application.Current).Settings;
-            var user = settings.User;
             TxtPhpMemoryLimit.Text = user.PhpMemoryLimit;
             TxtMonitorPort.Text = user.MonitorPort.ToString();
             ChkRunInBackground.IsChecked = user.RunInBackground;
@@ -70,6 +74,7 @@ namespace docker_rep2_win
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             SetInitialFocus();
+            CheckChanges();
         }
 
         private void SetInitialFocus()
@@ -90,9 +95,11 @@ namespace docker_rep2_win
 
         private async Task LoadVersions()
         {
+            var isRunning = ((App)Application.Current).Monitor?.IsRunning == true;
+
             // Webからのリスト取得と、WSLからの現行バージョン取得を並行して開始
             var fetchWebTask = VersionProvider.FetchVersionsAsync();
-            var fetchWslTask = (IsConfigMode && WslService.IsDistroInstalled()) 
+            var fetchWslTask = (isRunning && IsConfigMode && WslService.IsDistroInstalled()) 
                 ? WslService.GetOsVersionAsync() 
                 : Task.FromResult(string.Empty);
 
@@ -185,7 +192,7 @@ namespace docker_rep2_win
             user.AutoUpdateApp = ChkAutoUpdateApp.IsChecked ?? false;
             user.DebugLogEnabled = ChkDebugLogEnabled.IsChecked ?? false;
 
-            BtnNext.IsEnabled = user.HasAnyChanges;
+            BtnNext.IsEnabled = user.HasAnyChanges || _configContext.IsChanged || user.PendingCertbotUpdate;
             BtnNext.Content = user.VersionChanged ? "更新(WSL再構築)" : "更新";
         }
 
@@ -199,6 +206,32 @@ namespace docker_rep2_win
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
+            var user = ((App)Application.Current).Settings.User;
+
+            if (_configContext.IsChanged || user.PendingCertbotUpdate)
+            {
+                var messages = new List<string>();
+                messages.Add("以下の変更がアプリに反映されていません。");
+
+                if (_configContext.IsChanged)
+                {
+                    messages.Add("・docker-compose.local.yml の変更は破棄されます。");
+                }
+                
+                if (user.PendingCertbotUpdate)
+                {
+                    messages.Add("・Certbot設定の変更は未適用のまま保持され、次回以降の更新時に適用できます。");
+                }
+
+                messages.Add("\nキャンセルして設定画面を閉じますか？");
+
+                var result = MessageBox.Show(string.Join("\n", messages), "確認", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
+
             if (IsConfigMode)
             {
                 Window.GetWindow(this)?.Close();
@@ -212,6 +245,16 @@ namespace docker_rep2_win
         private void BtnShowDiff_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new PageConfdiff());
+        }
+
+        private void BtnEditComposeLocal_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new PageComposeLocal(_configContext));
+        }
+
+        private void BtnEditCertbot_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new PageCertbot(_configContext));
         }
 
         private async void BtnUpdateAlpine_Click(object sender, RoutedEventArgs e)
@@ -317,7 +360,7 @@ namespace docker_rep2_win
                 settings.SelectedHash = selectedVersion.Hash;
             }
 
-            if (IsConfigMode && !user.NeedsWslReboot)
+            if (IsConfigMode && !user.NeedsWslReboot && !_configContext.LocalComposeChanged && !user.PendingCertbotUpdate)
             {
                 InstallService.SetStartup(user.AutoStart);
                 
@@ -327,7 +370,13 @@ namespace docker_rep2_win
             }
             else
             {
-                NavigationService.Navigate(new PageInstall(IsConfigMode ? AppMode.Config : AppMode.Install));
+                var hooks = new InstallService.InstallHooks();
+                hooks.BeforeDeploy = () =>
+                {
+                    _configContext.Save(settings.WindowsDataPath);
+                };
+
+                NavigationService.Navigate(new PageInstall(IsConfigMode ? AppMode.Config : AppMode.Install, hooks));
             }
         }
     }

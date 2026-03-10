@@ -47,6 +47,16 @@ Linux 何それ？ WSL 何それ？ Docker 何それ？ だけど rep2 を使い
 
 おまかせセットアップしていて `docker-rep2-win` のステータスが起動中なら LAN 上の PC やスマホのブラウザから http://IPアドレス/ で rep2 へアクセス出来ます。
 
+## HTTPS 接続
+
+Let's encrypt の証明書を取得して HTTPS 化することができます。DNS-01 チャレンジを想定しています。
+
+DNS プロバイダーが Caddy のプラグインが対応している場合、設定画面の「compose.local.yml編集」ボタンから [docker-rep2のcaddyのドキュメント](https://github.com/fukumen/docker-rep2/blob/php8/doc/caddy.md) の方法2を参考に設定してください。証明書の取得や更新は Caddy 任せになります。
+
+DNS プロバイダーが Caddy のプラグインが対応していない場合、Certbot のコンテナを使用することも出来ます。設定画面の「Certbot設定」ボタンから設定して証明書を取得してください。更新はコンテナ起動時もしくは起動中に 1 日 1 回 certbot renew を実行することで証明書の更新に対応しています。
+
+証明書の期限はメニュー画面の上部に表示されます。
+
 ## アンインストール
 
 Windows の「設定 > アプリ > インストールされているアプリ」からアンインストール出来ます。
