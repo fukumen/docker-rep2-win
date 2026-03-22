@@ -85,6 +85,7 @@
                         <TextBlock Text="※x.y.zのzのみ更新出来ます。" Foreground="Gray" FontSize="11" Margin="0,2,0,0" HorizontalAlignment="Center"/>
                     </StackPanel>
                     <Button x:Name="BtnUpdateApp" Style="{StaticResource PageButtonStyle}" Content="docker-rep2 の更新" Width="180" Height="35" Margin="0,0,10,0" VerticalAlignment="Top" Click="BtnUpdateApp_Click"/>
+                    <Button x:Name="BtnCheckSelfUpdate" Style="{StaticResource PageButtonStyle}" Content="アプリの更新を確認" Width="180" Height="35" VerticalAlignment="Top" Click="BtnCheckSelfUpdate_Click"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="BtnShowDiff" Style="{StaticResource PageButtonStyle}" Content="設定の差分を表示" Width="180" Height="35" Margin="0,0,10,0" VerticalAlignment="Top" Click="BtnShowDiff_Click"/>

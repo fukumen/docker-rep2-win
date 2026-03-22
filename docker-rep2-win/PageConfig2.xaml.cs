@@ -379,5 +379,84 @@ namespace docker_rep2_win
                 NavigationService.Navigate(new PageInstall(IsConfigMode ? AppMode.Config : AppMode.Install, hooks));
             }
         }
+
+        private async void BtnCheckSelfUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                UpdateOverlay.Visibility = Visibility.Visible;
+                TxtUpdateStatus.Text = "更新を確認中...";
+
+                using var client = new System.Net.Http.HttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(AppInfo.AppShortName);
+                client.Timeout = TimeSpan.FromSeconds(10);
+
+                string apiUrl = "https://api.github.com/repos/fukumen/docker-rep2-win/releases/latest";
+                var response = await client.GetStringAsync(apiUrl);
+
+                using var doc = System.Text.Json.JsonDocument.Parse(response);
+                var root = doc.RootElement;
+                
+                string tagName = root.GetProperty("tag_name").GetString() ?? "";
+                string latestVersionStr = tagName.TrimStart('v', 'V');
+                string currentVersionStr = AppInfo.AppVersion;
+
+                if (Version.TryParse(latestVersionStr, out var latestVersion) && 
+                    Version.TryParse(currentVersionStr, out var currentVersion))
+                {
+                    if (latestVersion > currentVersion)
+                    {
+                        var result = MessageBox.Show(
+                            $"新しいバージョン (v{latestVersion}) が利用可能です。\n\nダウンロードページを開きますか？",
+                            "アプリの更新", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            string downloadUrl = root.GetProperty("html_url").GetString() ?? AppInfo.AppGitHubUrl;
+                            
+                            string arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? "arm64" : "x64";
+                            string targetAssetPrefix = $"docker-rep2-win-setup-";
+                            string targetAssetSuffix = $"-win-{arch}.exe";
+
+                            if (root.TryGetProperty("assets", out var assets) && assets.ValueKind == System.Text.Json.JsonValueKind.Array)
+                            {
+                                foreach (var asset in assets.EnumerateArray())
+                                {
+                                    string assetName = asset.GetProperty("name").GetString() ?? "";
+                                    if (assetName.StartsWith(targetAssetPrefix, StringComparison.OrdinalIgnoreCase) &&
+                                        assetName.EndsWith(targetAssetSuffix, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? downloadUrl;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = downloadUrl,
+                                UseShellExecute = true
+                            });
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("現在最新のバージョンを使用しています。", "アプリの更新", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("バージョン情報の解析に失敗しました。", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"更新の確認に失敗しました:\n{ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                UpdateOverlay.Visibility = Visibility.Collapsed;
+            }
+        }
     }
 }
