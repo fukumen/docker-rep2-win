@@ -34,7 +34,7 @@ namespace docker_rep2_win
                 var settings = ((App)Application.Current).Settings;
                 string wslPath = WslService.ConvertToWslPath(settings.WindowsDataPath);
                 
-                string cmd = $"cd \"{wslPath}\" && docker compose exec -T rep2php8 diff /var/www/conf.orig /ext/conf | iconv -f SHIFT_JIS -t UTF-8";
+                string cmd = $"cd \"{wslPath}\" && docker compose exec -T rep2 diff /var/www/conf.orig /ext/conf | iconv -f SHIFT_JIS -t UTF-8";
                 
                 var result = await WslService.RunCommandAsync(cmd, ignoreExitCode: true);
 

@@ -4,7 +4,7 @@
 
 ## 概要
 
-`docker-rep2-win` は、[rep2](https://github.com/fukumen/p2-php) を Docker コンテナ化した [docker-rep2](https://github.com/fukumen/docker-rep2) を、Windows アプリケーションとして直感的に管理できるように設計されています。複雑なコマンド操作なしで、インストール、設定変更、起動・停止、アップデートを行うことができます。
+`docker-rep2-win` は、[rep2](https://github.com/fukumen/p2-php) を Docker コンテナ化した [docker-rep2](https://github.com/fukumen/p2-php/tree/main/deploy/docker-rep2) を、Windows アプリケーションとして直感的に管理できるように設計されています。複雑なコマンド操作なしで、インストール、設定変更、起動・停止、アップデートを行うことができます。
 
 Linux 何それ？ WSL 何それ？ Docker 何それ？ だけど rep2 を使いたい人向けのソフトウェアです。GUI で一通りのことはできますが、rep2 に接続するための WEB ブラウザは内蔵していません。PC やスマホの好きなブラウザを使用してください。
 
@@ -51,7 +51,7 @@ Linux 何それ？ WSL 何それ？ Docker 何それ？ だけど rep2 を使い
 
 Let's encrypt の証明書を取得して HTTPS 化することができます。DNS-01 チャレンジを想定しています。
 
-DNS プロバイダーが Caddy のプラグインが対応している場合、設定画面の「compose.local.yml編集」ボタンから [docker-rep2のcaddyのドキュメント](https://github.com/fukumen/docker-rep2/blob/php8/doc/caddy.md) の方法2を参考に設定してください。証明書の取得や更新は Caddy 任せになります。
+DNS プロバイダーが Caddy のプラグインが対応している場合、設定画面の「compose.local.yml編集」ボタンから [docker-rep2のcaddyのドキュメント](https://github.com/fukumen/p2-php/blob/main/deploy/docker-rep2/doc/caddy.md) の方法2を参考に設定してください。証明書の取得や更新は Caddy 任せになります。
 
 DNS プロバイダーが Caddy のプラグインが対応していない場合、Certbot のコンテナを使用することも出来ます。設定画面の「Certbot設定」ボタンから設定して証明書を取得してください。更新はコンテナ起動時もしくは起動中に 1 日 1 回 certbot renew を実行することで証明書の更新に対応しています。
 
@@ -84,7 +84,7 @@ rep2 のログはターミナルから `docker compose logs -f` とすれば確�
 - 「ブラウザを自動起動する」による早いタイミングでの rep2 へのアクセスは待たされたりタイムアウトしたりする場合があります
 - はじめて WSL をインストールした場合、[WSL へようこそ](https://github.com/user-attachments/assets/0998a3b2-7a3c-40e6-82f8-cc3353ebb73c)みたいなのが表示される（無視して閉じて大丈夫です）
 - rep2 へのアクセスはIPv4のみ
-- rep2 と docker-rep2 は fukumen 版の latest を決め打ちしている
+- rep2 と docker-rep2 は fukumen 版の latest を決め打ちしている（docker-rep2 は fukumen/p2-php の deploy/docker-rep2）
 
 ## ソフトウェアスタック
 

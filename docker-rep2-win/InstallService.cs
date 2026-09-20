@@ -50,7 +50,7 @@ namespace docker_rep2_win
             addgroup root docker 2>/dev/null || true
             """;
 
-        private const string ComposeRawUrl = "https://raw.githubusercontent.com/fukumen/docker-rep2/php8/docker-compose.yml";
+        private const string ComposeRawUrl = "https://raw.githubusercontent.com/fukumen/p2-php/main/deploy/docker-rep2/docker-compose.yml";
 
         public delegate void ProgressHandler(double percentage, string status);
 
@@ -366,7 +366,7 @@ namespace docker_rep2_win
 
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("services:");
-            sb.AppendLine("  rep2php8:");
+            sb.AppendLine("  rep2:");
             sb.AppendLine("    volumes:");
             sb.AppendLine("      - ./php-local.ini:/usr/local/etc/php/conf.d/z-php-local.ini");
 
@@ -382,9 +382,9 @@ namespace docker_rep2_win
             {
                 sb.AppendLine("  certbot:");
                 sb.AppendLine("    image: rep2-certbot");
-                sb.AppendLine("    pid: \"service:rep2php8\"");
+                sb.AppendLine("    pid: \"service:rep2\"");
                 sb.AppendLine("    depends_on:");
-                sb.AppendLine("      - rep2php8");
+                sb.AppendLine("      - rep2");
                 sb.AppendLine("    entrypoint: [\"/bin/sh\", \"-c\", \"while true; do certbot renew --deploy-hook 'kill -USR1 $$(pidof caddy)'; sleep 86400; done\"]");
                 sb.AppendLine("    build:");
                 sb.AppendLine("      context: ./certbot");

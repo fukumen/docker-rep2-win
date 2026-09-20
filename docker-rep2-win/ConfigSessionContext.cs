@@ -18,10 +18,10 @@ namespace docker_rep2_win
         private const string LocalComposeFile = "docker-compose.local.yml";
         public const string DefaultLocalCompose = """
             services:
-              rep2php8:
+              rep2:
                 volumes:
                   # Caddy本体をプラグイン入りにしてDNS-01チャンレンジを使用する場合の例:
-                  # https://github.com/fukumen/docker-rep2/blob/php8/doc/caddy.md を参考に
+                  # https://github.com/fukumen/p2-php/blob/main/deploy/docker-rep2/doc/caddy.md を参考に
                   # rep2-data/win に ./caddy-local/caddy_linux_amd64_custom と Caddyfile を用意してください
                   - ./caddy-local/caddy_linux_amd64_custom:/usr/bin/caddy
                   - ./caddy-local/Caddyfile:/etc/Caddyfile
