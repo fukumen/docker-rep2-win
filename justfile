@@ -68,6 +68,13 @@ _publish arch version: _pre_build
     @echo "--- Cleaning up ---"
     Remove-Item publish/temp-{{arch}} -Recurse -Force; if (Test-Path publish/payload.zip) { Remove-Item publish/payload.zip -Force }
 
+# Alpine minirootfs マニフェスト (gist) を指定バージョンへ置き換える
+# 例: just update-alpine-version 3.24.2
+#     just update-alpine-version 3.24.2 -y --dry-run
+#     just update-alpine-version 3.24.2 --arch aarch64
+update-alpine-version version *flags:
+    {{ if os() == "windows" { "python scripts/update_alpine_manifest.py" } else { "python3 scripts/update_alpine_manifest.py" } }} {{version}} {{flags}}
+
 eol-check:
     #!/usr/bin/env python3
     import os
